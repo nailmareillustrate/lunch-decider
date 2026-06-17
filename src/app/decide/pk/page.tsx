@@ -96,7 +96,7 @@ export default function PkPage() {
     <div>
       <PageHeader
         title="PK 淘汰赛"
-        description="两两对决，每次只选更想吃的那个，最终决出冠军"
+        description="两两对决，只选更想吃的那个"
         icon={<Swords className="size-5" />}
       />
       <div className="grid gap-6 lg:grid-cols-[20rem_1fr]">
@@ -107,33 +107,44 @@ export default function PkPage() {
           tags={tags}
         />
 
-        <Card className="p-8">
+        <Card className="relative overflow-hidden p-8 sm:p-12">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-10 size-72 -translate-x-1/2 rounded-full opacity-50 blur-3xl"
+            style={{
+              background:
+                "radial-gradient(circle, color-mix(in oklch, var(--color-primary) 28%, transparent), transparent 70%)",
+            }}
+          />
           {!started ? (
-            <div className="flex flex-col items-center gap-6 py-10">
-              <p className="text-sm text-muted-foreground">
-                候选池：<span className="font-semibold text-foreground">{pool.length}</span> 项
-              </p>
-              <div>
-                <p className="mb-2 text-center text-xs font-medium text-muted-foreground">
-                  参赛人数
+            <div className="relative flex flex-col items-center gap-8 py-6">
+              <div className="text-center">
+                <div className="text-6xl">🏆</div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {pool.length} 项候选 · 选个赛制开打
                 </p>
-                <div className="flex gap-2">
-                  {SIZES.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setSize(s)}
-                      className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
-                        size === s
-                          ? "border-transparent bg-primary text-primary-foreground"
-                          : "border-border bg-card/60 text-muted-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {s} 强
-                    </button>
-                  ))}
-                </div>
               </div>
-              <Button variant="brand" size="lg" onClick={start}>
+              <div className="inline-flex rounded-full border border-border/70 bg-muted/40 p-1 backdrop-blur">
+                {SIZES.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSize(s)}
+                    className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
+                      size === s
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {s} 强
+                  </button>
+                ))}
+              </div>
+              <Button
+                variant="brand"
+                size="lg"
+                onClick={start}
+                className="h-12 rounded-full px-8 text-base shadow-[0_8px_22px_rgba(0,0,0,0.18)]"
+              >
                 <Play className="size-5" />
                 开始 {effectiveSize} 强淘汰赛
               </Button>
@@ -141,17 +152,25 @@ export default function PkPage() {
           ) : (
             a &&
             b && (
-              <div className="flex flex-col items-center gap-6">
-                <div className="text-sm text-muted-foreground">
-                  第 {round} / {totalRounds} 轮 · 第 {pairIndex / 2 + 1}/
-                  {Math.floor(current.length / 2)} 场
+              <div className="relative flex flex-col items-center gap-8">
+                <div className="flex items-center gap-2 rounded-full border border-border/70 bg-muted/40 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+                  <span>第 {round} / {totalRounds} 轮</span>
+                  <span className="text-border">·</span>
+                  <span className="tabular-nums">
+                    {pairIndex / 2 + 1} / {Math.floor(current.length / 2)} 场
+                  </span>
                 </div>
-                <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-4">
+                <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-5">
                   <AnimatePresence mode="popLayout">
                     <Contestant key={"a" + a.id} option={a} onPick={() => choose(a)} />
-                    <div className="grid size-12 place-items-center rounded-full bg-gradient-to-br from-brand-from to-brand-to text-sm font-bold text-white shadow">
+                    <motion.div
+                      key="vs"
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-brand-from via-brand-via to-brand-to text-sm font-bold tracking-wide text-white shadow-[0_6px_16px_rgba(0,0,0,0.25),inset_0_1px_1px_rgba(255,255,255,0.4)] ring-4 ring-white/70 dark:ring-white/12"
+                    >
                       VS
-                    </div>
+                    </motion.div>
                     <Contestant key={"b" + b.id} option={b} onPick={() => choose(b)} />
                   </AnimatePresence>
                 </div>
@@ -195,13 +214,15 @@ function Contestant({
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.85 }}
-      whileHover={{ scale: 1.03 }}
+      whileHover={{ scale: 1.03, y: -4 }}
       whileTap={{ scale: 0.97 }}
       onClick={onPick}
-      className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-5 text-center shadow-sm transition-colors hover:border-primary hover:bg-primary/5"
+      className="flex flex-col items-center gap-3 rounded-3xl border border-border bg-card p-6 text-center shadow-sm transition-colors hover:border-primary/60 hover:bg-primary/5 sm:p-8"
     >
-      <span className="text-5xl">{option.emoji}</span>
-      <span className="text-lg font-semibold">{option.name}</span>
+      <span className="text-6xl drop-shadow-sm sm:text-7xl">{option.emoji}</span>
+      <span className="text-lg font-semibold tracking-tight sm:text-xl">
+        {option.name}
+      </span>
       <OptionMeta option={option} showTags={false} />
     </motion.button>
   );

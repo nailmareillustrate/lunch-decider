@@ -123,7 +123,7 @@ export default function MoodPage() {
     <div>
       <PageHeader
         title="心情筛选"
-        description="先告诉我你现在的心情，我来帮你缩小范围"
+        description="选一种此刻的心情，剩下的交给我"
         icon={<HeartHandshake className="size-5" />}
       />
 
@@ -131,32 +131,33 @@ export default function MoodPage() {
         {MOODS.map((m) => (
           <motion.button
             key={m.key}
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -5 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => selectMood(m)}
-            className={`relative overflow-hidden rounded-2xl border p-4 text-left transition-colors ${
+            className={`group relative overflow-hidden rounded-3xl border p-5 text-left transition-all ${
               active?.key === m.key
-                ? "border-primary bg-primary/5"
-                : "border-border bg-card hover:bg-muted/50"
+                ? "border-primary/60 bg-primary/5 shadow-md ring-1 ring-primary/30"
+                : "border-border bg-card shadow-sm hover:shadow-md"
             }`}
           >
             <div
-              className={`mb-2 grid size-11 place-items-center rounded-xl bg-gradient-to-br ${m.accent} text-2xl shadow`}
+              className={`mb-3 grid size-12 place-items-center rounded-2xl bg-gradient-to-br ${m.accent} text-2xl shadow-[0_6px_14px_rgba(0,0,0,0.18),inset_0_1px_1px_rgba(255,255,255,0.4)]`}
             >
               {m.emoji}
             </div>
-            <div className="font-semibold">{m.label}</div>
-            <div className="text-xs text-muted-foreground">{m.desc}</div>
+            <div className="font-semibold tracking-tight">{m.label}</div>
+            <div className="mt-0.5 text-xs text-muted-foreground">{m.desc}</div>
           </motion.button>
         ))}
       </div>
 
       {active && (
-        <Card className="mt-8 p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-semibold">
-              {active.emoji} {active.label}
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
+        <Card className="mt-8 overflow-hidden p-6 sm:p-7">
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <h2 className="flex items-center gap-2 text-base font-semibold tracking-tight">
+              <span className="text-xl">{active.emoji}</span>
+              {active.label}
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground">
                 {matches.length} 个匹配
               </span>
             </h2>
@@ -164,21 +165,23 @@ export default function MoodPage() {
               variant="brand"
               onClick={pick}
               disabled={loading || matches.length === 0}
+              className="rounded-full px-5 shadow-[0_6px_16px_rgba(0,0,0,0.16)]"
             >
               <Dices className="size-4" />
               帮我定一个
             </Button>
           </div>
           {matches.length === 0 ? (
-            <p className="py-8 text-center text-muted-foreground">
+            <p className="py-10 text-center text-muted-foreground">
               {loading ? "加载中…" : "这个心情下还没有匹配的美食，去管理页添加吧"}
             </p>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {matches.map((o) => (
-                <div
+                <motion.div
                   key={o.id}
-                  className="flex items-start gap-3 rounded-xl border border-border bg-card/50 p-3"
+                  whileHover={{ y: -3 }}
+                  className="flex items-start gap-3 rounded-2xl border border-border bg-card/60 p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <span className="text-3xl">{o.emoji}</span>
                   <div className="min-w-0">
@@ -187,7 +190,7 @@ export default function MoodPage() {
                       <OptionMeta option={o} showTags={false} />
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}

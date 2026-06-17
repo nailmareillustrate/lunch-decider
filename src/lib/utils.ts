@@ -26,3 +26,32 @@ export function priceLabel(level: number): string {
 export function classNames(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
 }
+
+/**
+ * Heuristic: should this dish show rising-steam (i.e. is it served hot)?
+ * Defaults to hot; only clearly cold/raw items opt out.
+ */
+const COLD_KEYWORDS = [
+  "沙拉",
+  "色拉",
+  "寿司",
+  "刺身",
+  "生鱼",
+  "冷",
+  "冰",
+  "凉",
+  "轻食",
+  "三明治",
+  "饮",
+  "果",
+  "酸奶",
+  "甜品",
+];
+export function isHotFood(input: {
+  name: string;
+  category: string;
+  tags: string[];
+}): boolean {
+  const haystack = [input.name, input.category, ...input.tags].join(" ");
+  return !COLD_KEYWORDS.some((k) => haystack.includes(k));
+}

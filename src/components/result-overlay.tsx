@@ -6,6 +6,9 @@ import { Check, RotateCcw, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OptionMeta } from "@/components/option-meta";
 import { Confetti } from "@/components/confetti";
+import { DrawInEmoji } from "@/components/draw-in-emoji";
+import { Steam } from "@/components/steam";
+import { isHotFood } from "@/lib/utils";
 import type { FoodOption } from "@/lib/types";
 
 export function ResultOverlay({
@@ -52,14 +55,15 @@ export function ResultOverlay({
                 <Sparkles className="size-3.5" />
                 就决定是你了！
               </div>
-              <motion.div
-                className="my-4 text-7xl"
-                initial={{ scale: 0, rotate: -30 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 260, damping: 12, delay: 0.1 }}
-              >
-                {option.emoji}
-              </motion.div>
+              <div className="relative mx-auto my-4 grid h-44 w-44 place-items-center">
+                <Steam active={isHotFood(option)} />
+                <DrawInEmoji
+                  key={option.id}
+                  emoji={option.emoji}
+                  size={168}
+                  maskId={`draw-${option.id}`}
+                />
+              </div>
               <h2 className="text-3xl font-bold tracking-tight">{option.name}</h2>
               {option.description && (
                 <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">

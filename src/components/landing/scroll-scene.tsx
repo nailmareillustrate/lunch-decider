@@ -32,22 +32,23 @@ function Stage({
   total: number;
   progress: MotionValue<number>;
 }) {
-  const unit = 1 / total;
-  const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
-  const start = index * unit;
-  const end = (index + 1) * unit;
-  const fade = unit * 0.4;
-  const mid = (start + end) / 2;
+  // Each stage is centred on its scroll position: stage 0 at progress 0,
+  // the last stage at progress 1. Opacity/scale/offset are derived from the
+  // signed distance to that centre via function transforms (deterministic and
+  // free of keyframe-offset edge cases).
+  const center = total > 1 ? index / (total - 1) : 0;
+  const half = total > 1 ? 1 / (total - 1) : 1;
 
-  // Breakpoints kept strictly increasing and clamped within [0, 1].
-  const a = clamp01(start - fade);
-  const b = clamp01(start + fade);
-  const c = clamp01(end - fade);
-  const d = clamp01(end + fade);
-
-  const opacity = useTransform(progress, [a, b, c, d], [0, 1, 1, 0]);
-  const y = useTransform(progress, [a, d], [60, -60]);
-  const scale = useTransform(progress, [a, mid, d], [0.86, 1, 0.86]);
+  const opacity = useTransform(progress, (p) =>
+    Math.max(0, 1 - Math.abs(p - center) / half),
+  );
+  const scale = useTransform(progress, (p) => {
+    const t = Math.min(1, Math.abs(p - center) / half);
+    return 1 - 0.14 * t;
+  });
+  const y = useTransform(progress, (p) =>
+    Math.max(-60, Math.min(60, ((center - p) / half) * 60)),
+  );
   const Icon = mode.icon;
 
   return (

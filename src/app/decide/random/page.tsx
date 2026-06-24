@@ -66,7 +66,7 @@ export default function RandomPage() {
     <div>
       <PageHeader
         title="随机推荐"
-        description="设定口味、价格、就餐方式，让算法帮你随机抽一个"
+        description="按口味缩小范围，剩下的交给手气"
         icon={<Shuffle className="size-5" />}
       />
       <div className="grid gap-6 lg:grid-cols-[20rem_1fr]">
@@ -76,39 +76,67 @@ export default function RandomPage() {
           categories={categories}
           tags={tags}
         />
-        <Card className="flex flex-col items-center justify-center gap-6 p-10">
-          <p className="text-sm text-muted-foreground">
-            符合条件的候选：
-            <span className="font-semibold text-foreground">{pool.length}</span> 项
-          </p>
-          <div className="grid min-h-44 w-full max-w-sm place-items-center rounded-2xl border border-dashed border-border bg-muted/40 p-6">
+        <Card className="relative flex flex-col items-center justify-center gap-8 overflow-hidden p-10 sm:p-14">
+          {/* Ambient glow */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-24 size-64 -translate-x-1/2 rounded-full opacity-60 blur-3xl"
+            style={{
+              background:
+                "radial-gradient(circle, color-mix(in oklch, var(--color-primary) 32%, transparent), transparent 70%)",
+            }}
+          />
+          <div className="relative grid min-h-52 w-full max-w-sm place-items-center">
             <AnimatePresence mode="popLayout">
               {preview ? (
                 <motion.div
                   key={preview.id + (rolling ? "-r" : "-f")}
-                  initial={{ opacity: 0, y: 12, scale: 0.9 }}
+                  initial={{ opacity: 0, y: 12, scale: 0.92 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -12, scale: 0.9 }}
+                  exit={{ opacity: 0, y: -12, scale: 0.92 }}
                   transition={{ duration: 0.12 }}
                   className="text-center"
                 >
-                  <div className="text-6xl">{preview.emoji}</div>
-                  <div className="mt-3 text-2xl font-bold">{preview.name}</div>
-                  <div className="mt-3 flex justify-center">
-                    <OptionMeta option={preview} showTags={false} />
+                  <div className="text-8xl drop-shadow-sm">{preview.emoji}</div>
+                  <div className="mt-4 text-3xl font-bold tracking-tight">
+                    {preview.name}
                   </div>
+                  {!rolling && (
+                    <div className="mt-3 flex justify-center">
+                      <OptionMeta option={preview} showTags={false} />
+                    </div>
+                  )}
                 </motion.div>
               ) : (
-                <p className="text-center text-muted-foreground">
-                  点击下方按钮开始
-                </p>
+                <motion.div
+                  key="placeholder"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center"
+                >
+                  <div className="text-7xl opacity-25">🍽️</div>
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    轻点下方，开抽今天的午餐
+                  </p>
+                </motion.div>
               )}
             </AnimatePresence>
           </div>
-          <Button variant="brand" size="lg" onClick={roll} disabled={rolling}>
-            <Dices className={rolling ? "size-5 animate-spin" : "size-5"} />
-            {rolling ? "抽取中…" : "随机抽一个"}
-          </Button>
+          <div className="relative flex flex-col items-center gap-4">
+            <Button
+              variant="brand"
+              size="lg"
+              onClick={roll}
+              disabled={rolling}
+              className="h-12 rounded-full px-8 text-base shadow-[0_8px_22px_rgba(0,0,0,0.18)]"
+            >
+              <Dices className={rolling ? "size-5 animate-spin" : "size-5"} />
+              {rolling ? "抽取中…" : "随机抽一个"}
+            </Button>
+            <span className="rounded-full border border-border/70 bg-muted/40 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+              {pool.length} 项候选
+            </span>
+          </div>
         </Card>
       </div>
       <ResultOverlay

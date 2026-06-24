@@ -7,7 +7,6 @@ import { FilterPanel, emptyFilter } from "@/components/filter-panel";
 import { Wheel, type WheelHandle } from "@/components/wheel";
 import { ResultOverlay } from "@/components/result-overlay";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { useMeta } from "@/components/use-meta";
 import { api } from "@/lib/client";
@@ -58,7 +57,7 @@ export default function WheelPage() {
     <div>
       <PageHeader
         title="幸运大转盘"
-        description="点击 GO 转动转盘，把今天的午餐交给命运"
+        description="轻点中心，把午餐交给命运"
         icon={<CircleDot className="size-5" />}
       />
       <div className="grid gap-6 lg:grid-cols-[20rem_1fr]">
@@ -68,30 +67,13 @@ export default function WheelPage() {
           categories={categories}
           tags={tags}
         />
-        <Card className="flex flex-col items-center justify-center gap-6 p-8">
+        <Card className="relative flex flex-col items-center justify-center gap-8 overflow-hidden p-10 sm:p-14">
           {pool.length === 0 ? (
-            <p className="py-20 text-center text-muted-foreground">
+            <p className="py-24 text-center text-muted-foreground">
               没有符合条件的选项，放宽筛选条件试试～
             </p>
           ) : (
             <>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>
-                  当前 {displayed.length} 项
-                  {pool.length > MAX_SEGMENTS && ` （共 ${pool.length} 项随机抽取）`}
-                </span>
-                {pool.length > MAX_SEGMENTS && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => resample(pool)}
-                    disabled={spinning}
-                  >
-                    <RefreshCw className="size-3.5" />
-                    换一批
-                  </Button>
-                )}
-              </div>
               <Wheel
                 ref={wheelRef}
                 options={displayed}
@@ -99,14 +81,23 @@ export default function WheelPage() {
                 onSpinStart={() => setSpinning(true)}
                 onResult={handleResult}
               />
-              <Button
-                variant="brand"
-                size="lg"
-                onClick={() => wheelRef.current?.spin()}
-                disabled={spinning}
-              >
-                {spinning ? "转动中…" : "转动转盘"}
-              </Button>
+              <div className="flex items-center gap-1.5 rounded-full border border-border/70 bg-muted/40 px-1.5 py-1 text-xs text-muted-foreground backdrop-blur">
+                <span className="px-2 tabular-nums">
+                  {pool.length > MAX_SEGMENTS
+                    ? `${displayed.length} / ${pool.length} 项`
+                    : `${displayed.length} 项`}
+                </span>
+                {pool.length > MAX_SEGMENTS && (
+                  <button
+                    onClick={() => resample(pool)}
+                    disabled={spinning}
+                    className="inline-flex items-center gap-1 rounded-full bg-card px-2.5 py-1 font-medium text-foreground shadow-sm transition-colors hover:text-primary disabled:opacity-50"
+                  >
+                    <RefreshCw className="size-3.5" />
+                    换一批
+                  </button>
+                )}
+              </div>
             </>
           )}
         </Card>
